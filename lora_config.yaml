@@ -1,0 +1,24 @@
+model: mlx-community/DeepSeek-R1-Distill-Llama-8B-4bit
+trust_remote_code: true
+fine_tune_type: lora
+num_layers: 8
+lora_parameters:
+  rank: 8
+  scale: 16.0
+  dropout: 0.0
+train: true
+iters: 600
+batch_size: 1
+grad_accumulation_steps: 4
+learning_rate: 1.0e-05
+optimizer: adam
+seed: 0
+lr_schedule: null
+max_seq_length: 512
+grad_checkpoint: true
+mask_prompt: true
+data: data
+adapter_path: adapters
+save_every: 100
+steps_per_eval: 50
+steps_per_report: 10

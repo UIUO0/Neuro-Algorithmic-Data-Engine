@@ -1,0 +1,134 @@
+# ============================================================================
+# Neuro-Algorithmic-Data-Engine — .gitignore
+# Python + Large Model Files + ML Artifacts
+# ============================================================================
+
+# ---------- Byte-compiled / optimized / DLL files ----------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---------- C extensions ----------
+*.so
+
+# ---------- Distribution / packaging ----------
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---------- PyInstaller ----------
+*.manifest
+*.spec
+
+# ---------- Installer logs ----------
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---------- Unit test / coverage reports ----------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# ---------- Translations ----------
+*.mo
+*.pot
+
+# ---------- Environments ----------
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ---------- IDE / Editor ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ---------- Jupyter Notebook ----------
+.ipynb_checkpoints
+
+# ---------- Mypy ----------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================================================
+# ML / Deep Learning — Large Model Files
+# CRITICAL: Prevent accidental upload of multi-GB model weights to GitHub
+# ============================================================================
+
+# Model weight formats
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pb
+*.tflite
+*.mlmodel
+*.mlpackage
+
+# MLX specific artifacts
+mlx_model/
+fused_model/
+
+# LoRA / PEFT adapter outputs
+adapters/
+adapter_model/
+
+# Training checkpoints & weights
+checkpoints/
+weights/
+saved_models/
+output_model/
+
+# HuggingFace cache (can be very large)
+.cache/
+*.lock
+
+# Processed / generated data
+data/processed/
+data/output/
+*.jsonl
+
+# Logs
+logs/
+*.log
+wandb/
+runs/
+
+# Temporary files
+tmp/
+temp/
