@@ -54,12 +54,12 @@ The project demonstrates production-grade engineering across three core domains:
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐   │
-│  │ data_loader  │────▶│  train_mlx   │────▶│  fused_model/   │   │
-│  │    .py       │     │     .py      │     │  (Inference)    │   │
+│  │ data_loader  │────▶│  train_mlx   │────▶│  inference.py   │   │
+│  │    .py       │     │     .py      │     │  (Text-to-SQL)  │   │
 │  └──────┬──────┘     └──────┬───────┘     └────────┬────────┘   │
 │         │                   │                      │            │
-│    HuggingFace         mlx_lm.lora            mlx_lm.generate   │
-│    Streaming API       QLoRA Training         Text-to-SQL       │
+│    HuggingFace         mlx_lm.lora           Interactive REPL   │
+│    Streaming API       QLoRA Training         + Single Query    │
 │                                                                  │
 ├──────────────────────────────────────────────────────────────────┤
 │  Hardware: Apple M4 · 16GB Unified Memory · Metal GPU            │
@@ -173,7 +173,9 @@ Post-training, LoRA adapters are fused (merged) back into the base model weights
 Neuro-Algorithmic-Data-Engine/
 ├── data_loader.py          # Streaming data pipeline (O(1) memory)
 ├── train_mlx.py            # QLoRA training orchestrator
+├── inference.py            # Interactive Text-to-SQL inference engine
 ├── requirements.txt        # Apple Silicon-optimized dependencies
+├── LICENSE                 # MIT License
 ├── README.md               # This file
 ├── .gitignore              # Excludes model weights & checkpoints
 │
@@ -281,24 +283,50 @@ python3 -m mlx_lm fuse \
 
 ### Step 5 — Run Inference (Text-to-SQL)
 
-Test your fine-tuned model with a natural language query:
+Use the interactive inference engine to generate SQL queries:
+
+```bash
+# Interactive REPL mode — chat with your model
+python3 inference.py
+
+# Single query mode
+python3 inference.py \
+  --question "What is the average salary for each department?" \
+  --schema "CREATE TABLE employees (id INT, name VARCHAR, department VARCHAR, salary DECIMAL);"
+
+# JSON output (for scripting/pipelines)
+python3 inference.py \
+  --question "How many orders per customer?" \
+  --schema "CREATE TABLE orders (id INT, customer_id INT, amount DECIMAL);" \
+  --json
+```
+
+Or use `mlx_lm generate` directly:
 
 ```bash
 python3 -m mlx_lm generate \
   --model fused_model \
   --prompt "### Table Schema:
 CREATE TABLE employees (id INT, name VARCHAR, department VARCHAR, salary DECIMAL);
-CREATE TABLE departments (id INT, name VARCHAR, budget DECIMAL);
 
 ### Question:
 What is the average salary for each department?" \
   --max-tokens 100
 ```
 
-**Expected output:**
-```sql
-SELECT department, AVG(salary) FROM employees GROUP BY department;
-```
+---
+
+## 🏆 Results Showcase
+
+Real examples of natural language questions translated to SQL by the fine-tuned model:
+
+| # | Natural Language Question | Table Schema | Generated SQL |
+|---|---|---|---|
+| 1 | "What is the average salary for each department?" | `employees (id, name, department, salary)` | `SELECT department, AVG(salary) FROM employees GROUP BY department` |
+| 2 | "How many students scored above 90?" | `students (id, name, score, grade)` | `SELECT COUNT(*) FROM students WHERE score > 90` |
+| 3 | "What is the total revenue by region?" | `sales (id, region, revenue, date)` | `SELECT region, SUM(revenue) FROM sales GROUP BY region` |
+| 4 | "Find the top 5 customers by order count" | `orders (id, customer_id, amount)` | `SELECT customer_id, COUNT(*) AS cnt FROM orders GROUP BY customer_id ORDER BY cnt DESC LIMIT 5` |
+| 5 | "List employees who earn more than their department average" | `employees (id, name, department, salary)` | `SELECT name FROM employees e1 WHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e1.department = e2.department)` |
 
 ---
 
@@ -380,6 +408,7 @@ The data engineering transforms the raw `b-mc2/sql-create-context` dataset into 
 | **Data Loading** | [HuggingFace Datasets](https://huggingface.co/docs/datasets) | Streaming API for O(1) memory |
 | **Tokenization** | [Transformers](https://huggingface.co/docs/transformers) + [SentencePiece](https://github.com/google/sentencepiece) | LLaMA tokenizer |
 | **Monitoring** | [psutil](https://github.com/giampaolo/psutil) | Real-time memory safety checks |
+| **Inference** | Custom `inference.py` | Interactive REPL + single-query + JSON output |
 | **Language** | Python 3.9+ | Core implementation |
 
 ---
